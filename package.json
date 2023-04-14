@@ -10,7 +10,7 @@
   ],
   "scripts": {
     "build": "vite build && tsc",
-    "install": "npm run build",
+    "prepare": "npm run build",
     "test": "test"
   },
   "repository": {
