@@ -2,7 +2,14 @@
   "name": "react-qroma",
   "version": "0.1.0",
   "description": "React components for qroma.dev projects",
+  "main": "dist/index.umd.js",
+  "module": "dist/index.mjs",
+  "types": "dist/index.d.ts",
+  "files": [
+    "dist"
+  ],
   "scripts": {
+    "build": "vite build && tsc",
     "test": "test"
   },
   "repository": {
@@ -16,10 +23,15 @@
   },
   "homepage": "https://github.com/qromatech/react-qroma#readme",
   "devDependencies": {
-    "@types/react": "^18.0.35",
-    "react": "^18.2.0",
-    "typescript": "^5.0.4"
+    "typescript": "^5.0.4",
+    "vite": "^4.2.1"
   },
-  "main": "src/index.ts",
-  "files": ["src/**/*"]
+  "dependencies": {
+    "@protobuf-ts/runtime": "^2.8.3",
+    "buffer": "^6.0.3"
+  },
+  "peerDependencies": {
+    "@types/react": "^17.0.2",
+    "react": "^17.0.2"
+  }
 }

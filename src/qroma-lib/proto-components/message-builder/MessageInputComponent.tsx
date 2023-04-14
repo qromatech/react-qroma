@@ -1,5 +1,5 @@
 import React, { useState } from "react"
-import { FieldInfo, IMessageType, MessageType } from "@protobuf-ts/runtime"
+import { FieldInfo, IMessageType } from "@protobuf-ts/runtime"
 import { MessageAllFieldsInputComponent } from "./MessageAllFieldsInputComponent"
 // import { MessageAllFieldsDetailsComponent } from "./MessageAllFieldsDetailsComponent";
 

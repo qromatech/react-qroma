@@ -34,6 +34,8 @@ export const useQromaWebSerial = (): IQromaWebSerial => {
   });
 
   const requestPort = async () => {
+    // await initPort();
+
     try {
       if (qromaWebSerialContext.port) {
         return qromaWebSerialContext.port;
@@ -94,6 +96,6 @@ export const useQromaWebSerial = (): IQromaWebSerial => {
     requestPort,
     startMonitoring,
     stopMonitoring,
-    onData: (x: Uint8Array) => { },
+    onData: (_: Uint8Array) => { },
   };
 }

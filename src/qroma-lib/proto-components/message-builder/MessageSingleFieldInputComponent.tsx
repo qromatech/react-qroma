@@ -40,7 +40,7 @@ export const MessageSingleFieldInputComponent = (props: IMessageSingleFieldInput
       //   props.onChange(field, subValue);
       // };
 
-      const subMessageOnChange = (subField: FieldInfo, newValue) => {
+      const subMessageOnChange = (subField: FieldInfo, newValue: any) => {
         console.log("SUBMESSAGE CHANGE: " + subField.name);
         console.log(newValue);
         // const subValue = {

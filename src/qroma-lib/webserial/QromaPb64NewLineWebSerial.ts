@@ -1,7 +1,7 @@
 import { Buffer } from 'buffer';
 import { MessageType } from "@protobuf-ts/runtime";
 import { useQromaWebSerial } from "./QromaWebSerial";
-import { useEffect, useState } from 'react';
+import { useEffect } from 'react';
 
 
 // const qromaPb64NewLineWebSerialContext = {
@@ -18,7 +18,9 @@ import { useEffect, useState } from 'react';
 
 
 export const useQromaPb64NewLineWebSerial = <T extends object>(
-  {messageType, onMessage, onConnect, onDisconnect}: {
+  {messageType, onMessage, 
+    onConnect, onDisconnect
+  }: {
     messageType: MessageType<T>,
     onMessage: (message: T) => void,
     onConnect?: () => void,
@@ -47,14 +49,17 @@ export const useQromaPb64NewLineWebSerial = <T extends object>(
     }
   }
 
+  console.log("PREx USEEFFECT - LISTNERS");
   useEffect(() => {
+    console.log("USEEFFECT - LISTNERS");
     qSerial.addEventListener("connect", _onConnect)
     qSerial.addEventListener("disconnect", _onDisconnect)
     return () => {
       qSerial.removeEventListener("connect", _onConnect)
       qSerial.removeEventListener("disconnect", _onDisconnect)
     }
-  })
+  });
+  console.log("POST USEEFFECT - LISTNERS");
 
   const startMonitoring = async () => {
     let rxBuffer = new Uint8Array();

@@ -8,9 +8,9 @@ interface EnumItem {
 }
 
 const EnumerationValuesComponent = ({enumInfo}: {enumInfo: EnumInfo}) => {
-  const enumName = enumInfo[0];
+  // const enumName = enumInfo[0];
   const enumValues = enumInfo[1];
-  const typePrefix = enumInfo[2];
+  // const typePrefix = enumInfo[2];
 
   const enumItems = [] as EnumItem[];
   

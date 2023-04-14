@@ -1,5 +1,5 @@
-import React, { useState } from "react"
-import { JsonObject, JsonValue, MessageType, isJsonObject, typeofJsonValue } from "@protobuf-ts/runtime"
+import React from "react"
+import { JsonObject, JsonValue, typeofJsonValue } from "@protobuf-ts/runtime"
 import { MessageDataJsonObjectComponent } from "./MessageDataJsonObjectComponent"
 import { MessageDataJsonArrayComponent } from "./MessageDataJsonArrayComponent";
 

@@ -16,9 +16,9 @@ interface IEnumerationInputValuesComponentProps {
 const EnumerationInputValuesComponent = (props: IEnumerationInputValuesComponentProps) => {
   const enumInfo = props.enumInfo;
 
-  const enumName = enumInfo[0];
+  // const enumName = enumInfo[0];
   const enumValues = enumInfo[1];
-  const typePrefix = enumInfo[2];
+  // const typePrefix = enumInfo[2];
 
   const enumItems = [] as EnumItem[];
   
@@ -37,7 +37,7 @@ const EnumerationInputValuesComponent = (props: IEnumerationInputValuesComponent
   }
 
   const [selectedValue, setSelectedValue] = useState(enumItems[0].valueName);
-  const handleChange = (e) => {
+  const handleChange = (e: { target: { value: any } }) => {
     const newValue = e.target.value;
     console.log(newValue);
     console.log("NEW VALUE: " + newValue);
@@ -70,7 +70,7 @@ export const MessageEnumFieldInputComponent = (props: IMessageEnumFieldInputComp
     return <div>Non-enum input field provided: {field.name}</div>
   }
 
-  const onChange = (newValue) => {
+  const onChange = (newValue: any) => {
     props.onChange(field, newValue);
   }
 

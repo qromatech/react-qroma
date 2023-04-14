@@ -30,7 +30,7 @@ export const QromaRequestForm = <T extends object>(props: IQromaRequestFormProps
   // console.log("REQUEST OBJECT");
   // console.log(requestObjectData);
 
-  const onChange = (field: FieldInfo, newValue: any) => {
+  const onChange = (_: FieldInfo, newValue: any) => {
     console.log("REQUEST FORM CHANGE");
     console.log(newValue);
 
