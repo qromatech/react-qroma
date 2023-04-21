@@ -24,8 +24,8 @@ export const QromaStrMonitor = () => {
     }
 
     const onData = (newData: Uint8Array) => {
-      console.log("STR RECEIVED");
-      console.log(newData);
+      // console.log("STR RECEIVED");
+      // console.log(newData);
 
       let currentRxBuffer = new Uint8Array([...rxBuffer, ...newData]);
 
@@ -52,6 +52,7 @@ export const QromaStrMonitor = () => {
           const decoded = decoder.decode(fullMessage);
 
           setResponse(decoded);
+          console.log("DECODED: " + decoded);
     
         } catch (e) {
           console.log("CAUGHT ERROR");

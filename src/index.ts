@@ -9,3 +9,4 @@ export { useQromaPb64NewLineWebSerial } from './qroma-lib/webserial/QromaPb64New
 export { useQromaWebSerial } from './qroma-lib/webserial/QromaWebSerial'
 export { QromaAppViewMessageTypesComponent } from './qroma-lib/proto-components/QromaAppViewMessageTypesComponent'
 export { QromaCommMonitor } from './qroma-lib/QromaCommMonitor'
+export { QromaStrMonitor } from './qroma-lib/QromaStrMonitor'
