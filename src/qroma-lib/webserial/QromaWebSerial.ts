@@ -8,19 +8,14 @@ const qromaWebSerialContext = {
 };
 
 
-// export interface IQromaWebSerial {
-//   requestPort(): any
-//   startMonitoring(onData: (data: Uint8Array) => void): void
-//   stopMonitoring(): void
-//   onData: (data: Uint8Array) => void
-// }
-
-export const useQromaWebSerial = (): {
+export interface IQromaWebSerial {
   requestPort(): any
   startMonitoring(onData: (data: Uint8Array) => void): void
   stopMonitoring(): void
   onData: (data: Uint8Array) => void
-} => {
+}
+
+export const useQromaWebSerial = (): IQromaWebSerial => {
 
   const qNavigator: any = window.navigator;
 
