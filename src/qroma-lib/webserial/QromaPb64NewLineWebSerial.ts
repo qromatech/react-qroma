@@ -28,6 +28,10 @@ export const useQromaPb64NewLineWebSerial = <T extends object>(
   }
 ) => {
 
+  if (!window) {
+    throw Error("Not running in a browser");
+  }
+
   console.log("useQromaPb64NewLineWebSerial");
   const qNavigator: any = window.navigator;
   const qSerial = qNavigator.serial;

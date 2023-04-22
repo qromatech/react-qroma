@@ -17,6 +17,10 @@ export interface IQromaWebSerial {
 
 export const useQromaWebSerial = (): IQromaWebSerial => {
 
+  if (!window) {
+    throw Error("Not running in a browser");
+  }
+
   const qNavigator: any = window.navigator;
 
   useEffect(() => {
