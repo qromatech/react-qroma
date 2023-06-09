@@ -31,7 +31,8 @@
   },
   "dependencies": {
     "@protobuf-ts/runtime": "^2.8.3",
-    "buffer": "^6.0.3"
+    "buffer": "^6.0.3",
+    "crc": "^4.3.2"
   },
   "peerDependencies": {
     "@types/react": "^17.0.2",
