@@ -1,125 +1,100 @@
 import { Buffer } from 'buffer';
-import { useQromaWebSerial } from "./QromaWebSerial";
-import { useEffect } from 'react';
+import { PortRequestResult, useQromaWebSerial } from "./QromaWebSerial";
 import { QromaCommCommand, QromaCommResponse } from '../../qroma-comm-proto/qroma-comm';
 
 
-// const qromaPb64NewLineWebSerialContext = {
-//   rxBuffer: new Uint8Array(),
-// };
+export interface IUseQromaCommWebSerialInputs {
+  onQromaCommResponse: (message: QromaCommResponse) => void;
+  onConnect?: () => void;
+  onDisconnect?: () => void;
+  onPortRequestResult: ((requestResult: PortRequestResult) => void);
+}
+
+export interface IQromaCommWebSerial {
+  requestPort: () => any
+  // startMonitoring: (onConnection: (success: boolean) => void) => void
+  startMonitoring: () => void
+  getIsConnected(): boolean
+  stopMonitoring: () => void
+  sendQromaCommCommand: (qcCommand: QromaCommCommand) => void
+}
 
 
-// export interface IQromaPb64NewLineWebSerial<T> {
-//   requestPort(): any
-//   // startMonitoring(onUpdate: (update: T) => void): void
-//   startMonitoring(): void
-//   stopMonitoring(): void
-// }
-
-
-export const useQromaCommWebSerial = (  //  <T extends object>(
-  { // onAppMessage,
-    onQromaCommMessage,
-    onConnect, onDisconnect
-  }: {
-    // messageType: MessageType<T>,
-    onQromaCommMessage: (message: QromaCommResponse) => void,
-    // onAppMessage: (message: T) => void,
-    onConnect?: () => void,
-    onDisconnect?: () => void,
-  }
-) => {
-
+export const useQromaCommWebSerial = (inputs: IUseQromaCommWebSerialInputs): IQromaCommWebSerial => {
   if (!window) {
     throw Error("Not running in a browser");
   }
 
-  console.log("useQromaCommWebSerial");
-  const qNavigator: any = window.navigator;
-  const qSerial = qNavigator.serial;
+  let rxBuffer = new Uint8Array();
 
-  console.log(qSerial);
-  if (!qSerial) {
-    return null;
+  const setRxBuffer = (update: Uint8Array) => {
+    rxBuffer = update;
   }
 
-  const _onConnect = () => {
-    if (onConnect) {
-      onConnect();
-    }
-  }
+  const onData = (newData: Uint8Array) => {
+    console.log("QromaCommWebSerial - onData");
+    console.log(newData);
 
-  const _onDisconnect = () => {
-    if (onDisconnect) {
-      onDisconnect();
-    }
-  }
+    let currentRxBuffer = new Uint8Array([...rxBuffer, ...newData]);
 
-  console.log("PREx USEEFFECT - LISTNERS");
-  useEffect(() => {
-    console.log("USEEFFECT - LISTNERS");
-    qSerial.addEventListener("connect", _onConnect)
-    qSerial.addEventListener("disconnect", _onDisconnect)
-    return () => {
-      qSerial.removeEventListener("connect", _onConnect)
-      qSerial.removeEventListener("disconnect", _onDisconnect)
-    }
-  });
-  console.log("POST USEEFFECT - LISTNERS");
+    let firstNewLineIndex = 0;
 
-  const startMonitoring = async () => {
-    let rxBuffer = new Uint8Array();
+    while (firstNewLineIndex !== -1) {
 
-    const setRxBuffer = (update: Uint8Array) => {
-      rxBuffer = update;
-    }
+      let firstNewLineIndex = currentRxBuffer.findIndex(x => x === 10);
 
-    const onData = (newData: Uint8Array) => {
-      let currentRxBuffer = new Uint8Array([...rxBuffer, ...newData]);
-
-      let firstNewLineIndex = 0;
-
-      while (firstNewLineIndex !== -1) {
-
-        let firstNewLineIndex = currentRxBuffer.findIndex(x => x === 10);
-
-        if (firstNewLineIndex === -1) {
-          setRxBuffer(currentRxBuffer);
-          return;
-        }
-
-        if (firstNewLineIndex === 0) {
-          currentRxBuffer = currentRxBuffer.slice(1, currentRxBuffer.length);
-          continue;
-        }
-
-        try {
-          const b64Bytes = currentRxBuffer.slice(0, firstNewLineIndex);
-          currentRxBuffer = currentRxBuffer.slice(firstNewLineIndex, currentRxBuffer.length);
-
-          const b64String = new TextDecoder().decode(b64Bytes);
-          console.log("RESPONSE: " + b64String);
-          const messageBytes = Buffer.from(b64String, 'base64');
-          // console.log(messageBytes);
-          const response = QromaCommResponse.fromBinary(messageBytes);
-  
-          console.log(response);
-
-          onQromaCommMessage(response);
-
-          // onAppMessage(message);
-    
-        } catch (e) {
-          // console.log("CAUGHT ERROR");
-          // console.log(e);
-        }
+      if (firstNewLineIndex === -1) {
+        setRxBuffer(currentRxBuffer);
+        return;
       }
-      setRxBuffer(currentRxBuffer);
+
+      if (firstNewLineIndex === 0) {
+        currentRxBuffer = currentRxBuffer.slice(1, currentRxBuffer.length);
+        continue;
+      }
+
+      try {
+        const b64Bytes = currentRxBuffer.slice(0, firstNewLineIndex);
+        currentRxBuffer = currentRxBuffer.slice(firstNewLineIndex, currentRxBuffer.length);
+
+        const b64String = new TextDecoder().decode(b64Bytes);
+        console.log("RESPONSE: " + b64String);
+        const messageBytes = Buffer.from(b64String, 'base64');
+        const response = QromaCommResponse.fromBinary(messageBytes);
+
+        console.log("QromaCommWebSerial - onData has response");
+        console.log(response);
+
+        inputs.onQromaCommResponse(response);
+
+      } catch (e) {
+        // console.log("CAUGHT ERROR");
+        // console.log(e);
+      }
     }
-    qromaWebSerial.startMonitoring(onData);
+    setRxBuffer(currentRxBuffer);
+  }
+
+  // const startMonitoring = async (onConnection: (success: boolean) => void) => {
+  const startMonitoring = async () => {
+    try {
+      console.log("COMM WEB SERIAL - START");
+      // qromaWebSerial.startMonitoring(onData);
+      qromaWebSerial.startMonitoring();
+      console.log("COMM WEB SERIAL - START - CONNECTED");
+      // onConnection(true);
+    } catch (e) {
+      console.log("COMM WEB SERIAL - ON CONNECTION FALSE");
+      console.log(e);
+    }
   }
 
   const sendQromaCommCommand = async (qcCommand: QromaCommCommand) => {
+    if (!qromaWebSerial.getIsConnected()) {
+      console.log("CAN'T SEND COMMAND - NO CONNECTION");
+      console.log(qcCommand);
+      return;
+    }
 
     const messageBytes = QromaCommCommand.toBinary(qcCommand);
     
@@ -138,31 +113,30 @@ export const useQromaCommWebSerial = (  //  <T extends object>(
     writer.releaseLock();
   }
 
-  const getFileData = async (filePath: string) => {
-    const reportFileDataCommand: QromaCommCommand = {
-      command: {
-        oneofKind: 'fsCommand',
-        fsCommand: {
-          command: {
-            oneofKind: 'reportFileDataCommand',
-            reportFileDataCommand: {
-              filename: filePath,
-            }
-          }
-        }
-      }
-    };
-
-    await sendQromaCommCommand(reportFileDataCommand);
+  const onPortRequestResult = (requestResult: PortRequestResult): void => {
+    if (requestResult.success) {
+      console.log("WEB SERIAL - PORT REQUEST SUCCESS");
+      inputs.onPortRequestResult(requestResult);
+    } else {
+      console.log("WEB SERIAL - PORT REQUEST FAIL");
+      inputs.onPortRequestResult(requestResult);
+    }
   }
 
+
   console.log("CALLING useQromaWebSerial");
-  const qromaWebSerial = useQromaWebSerial();
+  const qromaWebSerial = useQromaWebSerial({
+    onData,
+    onConnect: inputs.onConnect,
+    onDisconnect: inputs.onDisconnect,
+    onPortRequestResult,
+  });
 
   return {
     requestPort: qromaWebSerial.requestPort,
     startMonitoring: startMonitoring,
+    getIsConnected: qromaWebSerial.getIsConnected,
     stopMonitoring: qromaWebSerial.stopMonitoring,
-    getFileData,
+    sendQromaCommCommand,
   };
 }

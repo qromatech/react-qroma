@@ -1,12 +1,63 @@
 import React, { useState } from "react"
-import { useQromaWebSerial } from "./webserial/QromaWebSerial";
+import { IUseQromaWebSerialInputs, useQromaWebSerial } from "./webserial/QromaWebSerial";
 
 
 export const QromaStrMonitor = () => {
   
   const [response, setResponse] = useState("NOT SET");
   
-  const qromaWebSerial = useQromaWebSerial();
+  let rxBuffer = new Uint8Array();
+
+    const setRxBuffer = (update: Uint8Array) => {
+      rxBuffer = update;
+    }
+
+  const onData = (newData: Uint8Array) => {
+    // console.log("STR RECEIVED");
+    // console.log(newData);
+
+    let currentRxBuffer = new Uint8Array([...rxBuffer, ...newData]);
+
+    let firstNewLineIndex = 0;
+
+    while (firstNewLineIndex !== -1) {
+      firstNewLineIndex = currentRxBuffer.findIndex(x => x === 10);
+
+      if (firstNewLineIndex === -1) {
+        setRxBuffer(currentRxBuffer);
+        return;
+      }
+
+      if (firstNewLineIndex === 0) {
+        currentRxBuffer = currentRxBuffer.slice(1, currentRxBuffer.length);
+        continue;
+      }
+
+      try {
+        const fullMessage = currentRxBuffer.slice(0, firstNewLineIndex);
+        currentRxBuffer = currentRxBuffer.slice(firstNewLineIndex, currentRxBuffer.length);
+
+        const decoder = new TextDecoder();
+        const decoded = decoder.decode(fullMessage);
+
+        setResponse(decoded);
+        console.log("DECODED: " + decoded);
+  
+      } catch (e) {
+        console.log("CAUGHT ERROR");
+        console.log(e);
+      }
+    }
+
+    setRxBuffer(currentRxBuffer);
+  }
+
+  const inputs: IUseQromaWebSerialInputs = {
+    onData,
+    onPortRequestResult: () => { console.log("PORT REQUEST COMPLETE") }
+  }
+
+  const qromaWebSerial = useQromaWebSerial(inputs);
   
   if (qromaWebSerial === null) {
     return (
@@ -16,55 +67,55 @@ export const QromaStrMonitor = () => {
     )
   }
 
-  const startMonitoring = async () => {
-    let rxBuffer = new Uint8Array();
+  // const startMonitoring = async () => {
+  //   let rxBuffer = new Uint8Array();
 
-    const setRxBuffer = (update: Uint8Array) => {
-      rxBuffer = update;
-    }
+  //   const setRxBuffer = (update: Uint8Array) => {
+  //     rxBuffer = update;
+  //   }
 
-    const onData = (newData: Uint8Array) => {
-      // console.log("STR RECEIVED");
-      // console.log(newData);
+  //   const onData = (newData: Uint8Array) => {
+  //     // console.log("STR RECEIVED");
+  //     // console.log(newData);
 
-      let currentRxBuffer = new Uint8Array([...rxBuffer, ...newData]);
+  //     let currentRxBuffer = new Uint8Array([...rxBuffer, ...newData]);
 
-      let firstNewLineIndex = 0;
+  //     let firstNewLineIndex = 0;
 
-      while (firstNewLineIndex !== -1) {
-        firstNewLineIndex = currentRxBuffer.findIndex(x => x === 10);
+  //     while (firstNewLineIndex !== -1) {
+  //       firstNewLineIndex = currentRxBuffer.findIndex(x => x === 10);
 
-        if (firstNewLineIndex === -1) {
-          setRxBuffer(currentRxBuffer);
-          return;
-        }
+  //       if (firstNewLineIndex === -1) {
+  //         setRxBuffer(currentRxBuffer);
+  //         return;
+  //       }
 
-        if (firstNewLineIndex === 0) {
-          currentRxBuffer = currentRxBuffer.slice(1, currentRxBuffer.length);
-          continue;
-        }
+  //       if (firstNewLineIndex === 0) {
+  //         currentRxBuffer = currentRxBuffer.slice(1, currentRxBuffer.length);
+  //         continue;
+  //       }
 
-        try {
-          const fullMessage = currentRxBuffer.slice(0, firstNewLineIndex);
-          currentRxBuffer = currentRxBuffer.slice(firstNewLineIndex, currentRxBuffer.length);
+  //       try {
+  //         const fullMessage = currentRxBuffer.slice(0, firstNewLineIndex);
+  //         currentRxBuffer = currentRxBuffer.slice(firstNewLineIndex, currentRxBuffer.length);
 
-          const decoder = new TextDecoder();
-          const decoded = decoder.decode(fullMessage);
+  //         const decoder = new TextDecoder();
+  //         const decoded = decoder.decode(fullMessage);
 
-          setResponse(decoded);
-          console.log("DECODED: " + decoded);
+  //         setResponse(decoded);
+  //         console.log("DECODED: " + decoded);
     
-        } catch (e) {
-          console.log("CAUGHT ERROR");
-          console.log(e);
-        }
-      }
+  //       } catch (e) {
+  //         console.log("CAUGHT ERROR");
+  //         console.log(e);
+  //       }
+  //     }
   
-      setRxBuffer(currentRxBuffer);
-    }
+  //     setRxBuffer(currentRxBuffer);
+  //   }
   
-    qromaWebSerial.startMonitoring(onData);
-  }
+  //   qromaWebSerial.startMonitoring();
+  // }
 
 
   return (
@@ -74,7 +125,7 @@ export const QromaStrMonitor = () => {
         const port = await qromaWebSerial.requestPort();
         console.log("PORT");
         console.log(port);
-        startMonitoring();
+        qromaWebSerial.startMonitoring();
       }}>
         Start monitor
       </button>

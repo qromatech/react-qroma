@@ -3,7 +3,7 @@ import { FieldInfo, MessageType } from "@protobuf-ts/runtime"
 import React, { useState } from "react"
 import { MessageInputComponent } from "./proto-components/message-builder/MessageInputComponent"
 import { MessageDataViewerComponent } from './proto-components/message-data-viewer/MessageDataViewerComponent';
-import { useQromaWebSerial } from './webserial/QromaWebSerial';
+import { IUseQromaWebSerialInputs, useQromaWebSerial } from './webserial/QromaWebSerial';
 
 
 interface IQromaRequestFormProps<T extends object> {
@@ -27,7 +27,15 @@ export const QromaRequestForm = <T extends object>(props: IQromaRequestFormProps
     setRequestObjectData(newRequestObjectData);
   }
 
-  const qromaWebSerial = useQromaWebSerial();
+  
+  const inputs: IUseQromaWebSerialInputs = {
+    onData: (data: Uint8Array) => { 
+      console.log("ON DATA");
+      console.log(data);
+    },
+    onPortRequestResult: () => { console.log("PORT REQUEST COMPLETE") }
+  }
+  const qromaWebSerial = useQromaWebSerial(inputs);
   
   const sendRequest = async () => {
     console.log("SEND COMMAND");
