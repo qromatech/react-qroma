@@ -1,69 +1,83 @@
-import { Buffer } from 'buffer';
-import { FieldInfo, MessageType } from "@protobuf-ts/runtime"
+// import { Buffer } from 'buffer';
+import { FieldInfo, IMessageType } from "@protobuf-ts/runtime"
 import React, { useState } from "react"
 import { MessageInputComponent } from "./proto-components/message-builder/MessageInputComponent"
 import { MessageDataViewerComponent } from './proto-components/message-data-viewer/MessageDataViewerComponent';
-import { IUseQromaWebSerialInputs, useQromaWebSerial } from './webserial/QromaWebSerial';
+import { IQromaAppWebSerial } from "./webserial/QromaAppWebSerial";
+// import { IUseQromaAppWebSerialInputs, useQromaAppWebSerial } from './webserial/QromaAppWebSerial';
+// import { QromaCommResponse } from '../qroma-comm-proto/qroma-comm';
 
 
-interface IQromaRequestFormProps<T extends object> {
-  requestMessageType: MessageType<T>
+interface IQromaRequestFormProps<TCommand extends object, TResponse extends object> {
+  requestMessageType: IMessageType<TCommand>
+  responseMessageType: IMessageType<TResponse>
+  qromaWebSerial: IQromaAppWebSerial<TCommand>
 }
 
-export const QromaRequestForm = <T extends object>(props: IQromaRequestFormProps<T>) => {
+export const QromaRequestForm = <TCommand extends object, TResponse extends object>(props: IQromaRequestFormProps<TCommand, TResponse>) => {
   const m = props.requestMessageType;
 
-  const [requestObject, setRequestObject] = useState(props.requestMessageType.create());
+  const [requestObject, _] = useState(props.requestMessageType.create());
   const [requestObjectData, setRequestObjectData] = useState(
     props.requestMessageType.toJson(props.requestMessageType.create()));
 
-  const [requestB64, setRequestB64] = useState("");
+  console.log("INIT OBJECT STATE");
+  console.log(requestObjectData);
 
   const onChange = (_: FieldInfo, newValue: any) => {
     console.log("REQUEST FORM CHANGE");
     console.log(newValue);
 
+    // const x = {
+    //   setLightColor: {
+    //     r: '3'
+    //   }
+    // }
+
     const newRequestObjectData = JSON.parse(JSON.stringify(newValue));
+    // const newRequestObjectData = JSON.parse(JSON.stringify(x));
     setRequestObjectData(newRequestObjectData);
   }
 
   
-  const inputs: IUseQromaWebSerialInputs = {
-    onData: (data: Uint8Array) => { 
-      console.log("ON DATA");
-      console.log(data);
-    },
-    onPortRequestResult: () => { console.log("PORT REQUEST COMPLETE") }
-  }
-  const qromaWebSerial = useQromaWebSerial(inputs);
+  // const inputs: IUseQromaAppWebSerialInputs<TCommand, TResponse> = {
+  //   onQromaAppResponse: (appMessage: TResponse) => {
+  //     console.log("QromaRequestForm - onQromaAppResponse");
+  //     console.log(appMessage);
+  //   },
+  //   onQromaCommResponse: (message: QromaCommResponse) => {
+  //     console.log("QromaRequestForm - onQromaCommResponse");
+  //     console.log(message);
+  //   },
+  //   commandMessageType: props.requestMessageType,
+  //   responseMessageType: props.responseMessageType,
+  //   onPortRequestResult: () => { console.log("PORT REQUEST COMPLETE") }
+  // }
+  // const qromaWebSerial = useQromaAppWebSerial(inputs);
   
   const sendRequest = async () => {
     console.log("SEND COMMAND");
 
     const requestObject = props.requestMessageType.fromJson(requestObjectData);
-    const requestBytes = props.requestMessageType.toBinary(requestObject);
-    console.log(requestBytes);
-    const requestB64 = Buffer.from(requestBytes).toString('base64') + "\n";
-    console.log(requestB64);
-    console.log(requestB64.length);
+    const result = await props.qromaWebSerial.sendQromaAppCommand(requestObject);
 
-    setRequestB64(requestB64);
-    setRequestObject(requestObject);
-
-    const port = await qromaWebSerial.requestPort();
-    console.log(port);
-    const writer = port.writable.getWriter();
-
-    const encoder = new TextEncoder();
-    const encoded = encoder.encode(requestB64);
-    await writer.write(encoded);
-    writer.releaseLock();
+    console.log("REQUEST SENT");
+    console.log(result);
   }
   
   return (
     <div>
-      Qroma Request Form: {props.requestMessageType.typeName}
+      {/* Qroma Request Form: {props.requestMessageType.typeName}
+      <button onClick={() => qromaWebSerial.startMonitoring() }>START MONITORING</button> */}
 
+      {/* <MessageInputComponent
+        requestMessageType={m}
+        messageName="requestForm"
+        typeName={m.typeName}
+        fields={m.fields}
+        onChange={onChange}
+        key={m.typeName}
+        /> */}
       <MessageInputComponent
         requestMessageType={m}
         messageName="requestForm"
@@ -79,9 +93,6 @@ export const QromaRequestForm = <T extends object>(props: IQromaRequestFormProps
         />
       <div>
         {props.requestMessageType.toJsonString(props.requestMessageType.fromJson(requestObjectData))}
-      </div>
-      <div>
-        {requestB64}
       </div>
     </div>
   )

@@ -1,10 +1,10 @@
 import React from "react"
-import { MessageType } from "@protobuf-ts/runtime"
+import { IMessageType } from "@protobuf-ts/runtime"
 import { MessageDataJsonValueViewerComponent } from "./MessageDataJsonValueViewerComponent"
 
 
 interface IMessageDataViewerComponentProps<T extends object> {
-  messageType: MessageType<T>
+  messageType: IMessageType<T>
   messageData: T
 }
 

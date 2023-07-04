@@ -48,7 +48,6 @@ export const QromaCommFileSystemApi = (): IQromaCommFilesystemApi => {
 
     if (qromaCommWebSerial) {
       setTimeout(() => {
-        // qromaCommWebSerial.startMonitoring(onConnection);
         qromaCommWebSerial.startMonitoring();
       }, 0);
     }

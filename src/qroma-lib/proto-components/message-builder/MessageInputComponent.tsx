@@ -1,6 +1,6 @@
 import React, { useState } from "react"
-import { FieldInfo, IMessageType } from "@protobuf-ts/runtime"
-import { MessageAllFieldsInputComponent } from "./MessageAllFieldsInputComponent"
+import { FieldInfo, IMessageType, JsonObject } from "@protobuf-ts/runtime"
+import { MessageAllFieldsInputComponent, OneofGroup } from "./MessageAllFieldsInputComponent"
 // import { MessageAllFieldsDetailsComponent } from "./MessageAllFieldsDetailsComponent";
 
 
@@ -15,26 +15,9 @@ interface IMessageInputComponentProps<T extends object> {
 
 
 export const MessageInputComponent = <T extends object>(props: IMessageInputComponentProps<T>) => {
-  // const [isExpanded, setIsExpanded] = useState(false);
-
-  // const ExpansionButton = () => {
-  //   return <button onClick={() => setIsExpanded(!isExpanded)}>
-  //     {isExpanded ? '-' : '+'}
-  //   </button>
-  // }
-
-  // const subMessageOnChange = (subField: FieldInfo, newValue) => {
-  //   console.log("MessageInputComponent CHANGE: " + subField.name);
-  //   console.log(newValue);
-  //   const subValue = {
-  //     // subField.name: newValue,
-  //   };
-  //   subValue[subField.name] = newValue;
-  //   // props.onChange(field, subValue);
-  // };
 
   const [requestObjectData, setRequestObjectData] = useState(
-    props.requestMessageType.toJson(props.requestMessageType.create()));
+    props.requestMessageType.toJson(props.requestMessageType.create()) as JsonObject);
 
 
   const onMessageInputChange = (field: FieldInfo, newValue: any) => {
@@ -49,15 +32,29 @@ export const MessageInputComponent = <T extends object>(props: IMessageInputComp
     console.log(newRequestObjectData);
 
     props.onChange(field, newRequestObjectData);
-
-    // setRequestObjectData({
-    //   ...requestObjectData,
-
-    // })
   }
 
+  const onOneofChange = (oneof: OneofGroup, oneofSelection: string, newValue: any) => {
+    console.log("MessageInputComponent - onOneof")
+    console.log(oneof);
+    console.log(oneofSelection);
+    console.log(newValue);
 
+    // props.onChange()
+  }
 
+  const clearParentFieldValue = (fieldName: string) => {
+    console.log("IN clearParentFieldValue");
+    console.log(fieldName);
+    console.log(requestObjectData);
+    if (requestObjectData !== null) {
+      const {[fieldName]: _, ...clearedObject} = requestObjectData;
+      setRequestObjectData(clearedObject);
+      console.log(clearedObject);
+    }
+  }
+
+  
   return (
     // <div>
     //   <ExpansionButton />{props.typeName}
@@ -70,13 +67,13 @@ export const MessageInputComponent = <T extends object>(props: IMessageInputComp
     //   }
     // </div>
     <div>
-      {props.messageName} [{props.typeName}]
+      {props.messageName} -- [{props.typeName}]
       <MessageAllFieldsInputComponent
         messageTypeName={props.typeName}
         fields={props.fields}
-        // onChange={props.onChange}
-        // onChange={subMessageOnChange}
         onChange={onMessageInputChange}
+        onOneofChange={onOneofChange}
+        clearParentFieldValue={clearParentFieldValue}
         />
     </div>
 

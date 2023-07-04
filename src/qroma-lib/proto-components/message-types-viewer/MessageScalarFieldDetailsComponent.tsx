@@ -30,7 +30,7 @@ export const MessageScalarFieldDetailsComponent = ({field}: {field: FieldInfo}) 
 
   return (
     <div>
-      {field.name} [{getScalarTypeName(field.T)}]
+      {field.name} -- [{getScalarTypeName(field.T)}]
     </div>
   )
 }

@@ -41,11 +41,11 @@ export const useQromaAppWebSerial =
 
 
   const sendQromaAppCommand = async (appCommand: TCommand) => {
-    if (!qromaCommWebSerial.getIsConnected()) {
-      console.log("CAN'T SEND COMMAND - NO CONNECTION");
-      console.log(appCommand);
-      return;
-    }
+    // if (!qromaCommWebSerial.getIsConnected()) {
+    //   console.log("sendQromaAppCommand - CAN'T SEND COMMAND - NO CONNECTION");
+    //   console.log(appCommand);
+    //   return;
+    // }
 
     // const appMessageBytes = inputs.commandMessageType.toBinary(appCommand);
     const appMessageBytes = inputs.commandMessageType.toBinary(appCommand);
@@ -64,12 +64,15 @@ export const useQromaAppWebSerial =
     console.log(requestB64);
     console.log(requestB64.length);
 
+    const encoder = new TextEncoder();
+    const encoded = encoder.encode(requestB64);
+
     const port = await qromaCommWebSerial.requestPort();
     console.log(port);
     const writer = port.writable.getWriter();
+    console.log("QromaAppWebSerial wrote to serial");
+    console.log(encoded);
 
-    const encoder = new TextEncoder();
-    const encoded = encoder.encode(requestB64);
     await writer.write(encoded);
     writer.releaseLock();
   }

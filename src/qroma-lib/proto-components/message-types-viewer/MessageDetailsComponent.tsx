@@ -18,14 +18,19 @@ export const MessageDetailsComponent = (props: IMessageDetailsComponentProps) =>
     </button>
   }
 
+  
   return (
     <div>
       <ExpansionButton />{props.typeName}
       {isExpanded ? 
-        <MessageAllFieldsDetailsComponent
-          messageTypeName={props.typeName}
-          fields={props.fields}
-          /> : 
+        <>
+          <MessageAllFieldsDetailsComponent
+            messageTypeName={props.typeName}
+            fields={props.fields}
+            />
+          <button onClick={() => {console.log("Make Request")}}>Make Request</button>
+        </>
+ : 
         null
       }
     </div>

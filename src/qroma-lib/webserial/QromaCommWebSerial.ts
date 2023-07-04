@@ -12,7 +12,6 @@ export interface IUseQromaCommWebSerialInputs {
 
 export interface IQromaCommWebSerial {
   requestPort: () => any
-  // startMonitoring: (onConnection: (success: boolean) => void) => void
   startMonitoring: () => void
   getIsConnected(): boolean
   stopMonitoring: () => void
@@ -91,7 +90,7 @@ export const useQromaCommWebSerial = (inputs: IUseQromaCommWebSerialInputs): IQr
 
   const sendQromaCommCommand = async (qcCommand: QromaCommCommand) => {
     if (!qromaWebSerial.getIsConnected()) {
-      console.log("CAN'T SEND COMMAND - NO CONNECTION");
+      console.log("sendQromaCommCommand - CAN'T SEND COMMAND - NO CONNECTION");
       console.log(qcCommand);
       return;
     }
